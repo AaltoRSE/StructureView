@@ -99,20 +99,20 @@ export default {
   emits: ['selectPotential', 'unSelect'],
   methods: {
     handleEvent(event) {
-      console.log('click received')
-      console.log(getElementAtEvent(this.chart, event))
-      const selectedElement = getElementAtEvent(this.chart, event)
-      console.log(selectedElement)
+      const selectedElement = this.getElementAtEvent(event)
       if (selectedElement.length > 0) {
-        console.log('Emitting selection')
         this.$emit('selectPotential', selectedElement[0].index)
       } else {
-        console.log('Emitting Unselection')
         this.$emit('unSelect')
       }
     },
     getLabel(index) {
       return '' + index
+    },
+    getElementAtEvent(event) {
+      // this is mainly for allowing better testing, by wrapping the external
+      // dependency and thus being able to mock the call properly
+      return getElementAtEvent(this.chart, event)
     }
   },
   setup() {

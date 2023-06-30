@@ -8,11 +8,21 @@ export default mergeConfig(
   defineConfig({
     test: {
       globals: true,
-      environment: 'jsdom',
+      environment: 'jsdom',      
       exclude: [...configDefaults.exclude, 'e2e/*'],
       root: fileURLToPath(new URL('./', import.meta.url)),
       transformMode: {
         web: [/\.[jt]sx$/]
+      },
+      // from mock-canvas
+      setupFiles: ['./vitest.setup.js'],
+      deps: {
+        inline: ['vitest-canvas-mock'],
+      },
+      environmentOptions: {
+        jsdom: {
+          resources: 'usable',
+        },
       }
     }
   })

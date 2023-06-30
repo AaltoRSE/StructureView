@@ -44,7 +44,7 @@ export const moleculeData= [
   export const potentialData = [
     {
       x: -10,
-      y: 0,
+      y: 20,
       color: "red",
     },
     {
