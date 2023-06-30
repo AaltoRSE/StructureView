@@ -8,7 +8,7 @@ const selectedPotential = ref(null)
 
 <template>
   <div class="grid">
-    <div class="col">
+    <div class="col w-6">
       <StructureSelection
         @selectPotential="
           (event) => {
@@ -19,14 +19,8 @@ const selectedPotential = ref(null)
         @unSelect="selectedPotential = null"
       ></StructureSelection>
     </div>
-    <div class="col w-screen">
+    <div class="col w-6">
       <Mol :selectedPotential="selectedPotential"></Mol>
     </div>
   </div>
 </template>
-
-<style scoped>
-.read-the-docs {
-  color: #888;
-}
-</style>

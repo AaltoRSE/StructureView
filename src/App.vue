@@ -1,22 +1,7 @@
 <script setup>
-import PotentialViewer from "./components/PotentialViewer.vue";
+import PotentialViewer from './components/PotentialViewer.vue'
 </script>
 
 <template>
-  <PotentialViewer></PotentialViewer>
+  <PotentialViewer class="w-screen h-screen"></PotentialViewer>
 </template>
-
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>

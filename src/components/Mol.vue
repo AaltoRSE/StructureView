@@ -1,12 +1,5 @@
 <template>
-  <div>
-    <MolViewer
-      v-if="selectedPotential != null"
-      :moleculeData="moleculeData"
-      width="500px"
-      height="500px"
-    />
-  </div>
+  <MolViewer v-if="selectedPotential != null" :moleculeData="moleculeData" />
 </template>
 
 <script>
