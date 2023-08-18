@@ -1,9 +1,17 @@
 <template>
-  <Scatter ref="scatter" :data="data" :options="chartOptions" @click="handleEvent"></Scatter>
+  <Scatter
+    v-if="chartData"
+    ref="scatter"
+    :data="chartData"
+    :options="chartOptions"
+    @click="handleEvent"
+  ></Scatter>
+  <color-scale></color-scale>
 </template>
 
 <script>
 import { Scatter, getElementAtEvent } from 'vue-chartjs'
+import ColorScale from './ColorScale.vue'
 import zoomPlugin from 'chartjs-plugin-zoom'
 
 import { Chart as ChartJS, Title, Tooltip, Legend, LinearScale, PointElement } from 'chart.js'
@@ -14,25 +22,47 @@ ChartJS.register(Title, Tooltip, Legend, LinearScale, PointElement, zoomPlugin)
 
 export default {
   props: {
-    potentialData: {
+    atomData: {
+      type: Array,
+      required: true
+    },
+    colorData: {
+      type: Array,
+      required: true
+    },
+    coordinateData: {
       type: Array,
       required: true
     }
   },
   data() {
-    return {}
+    return {
+      chartData: null,
+      chartOptions: null
+    }
   },
-  components: { Scatter },
+  components: { Scatter, ColorScale },
+
   computed: {
-    colors() {
-      return this.potentialData.map((x) => x.color)
+    chart() {
+      return this.scatter.chart
+    }
+  },
+  watch: {
+    coordinateData(newValue) {
+      this.updateData()
     },
-    chartOptions() {
-      const options = {
+    colorData(newValue) {
+      this.scatter.chart.update()
+    }
+  },
+  emits: ['selectPotential', 'unSelect'],
+  methods: {
+    updateData() {
+      this.chartOptions = {
         responsive: true,
         pointBackgroundColor: (context) => {
-          const currentIndex = context.dataIndex
-          return this.colors[currentIndex]
+          return this.colorData[context.dataIndex]
         },
         scales: {
           x: {
@@ -65,7 +95,8 @@ export default {
             }
           },
           legend: {
-            display: false
+            display: false,
+            position: 'right'
           },
           tooltip: {
             callbacks: {
@@ -73,31 +104,22 @@ export default {
                 return this.getLabel(context.dataIndex)
               }
             },
+            mode: 'index',
             displayColors: false
-          }
+          },
+          gradient: {}
         }
       }
-      return options
-    },
-    chart() {
-      return this.scatter.chart
-    },
-    data() {
-      return {
+      this.chartData = {
         datasets: [
           {
             label: 'Current Dataset',
-            data: this.potentialData.map((potential) => {
-              return { x: potential.x, y: potential.y }
-            }),
+            data: this.coordinateData,
             backgroundColor: 'rgb(255, 99, 132)'
           }
         ]
       }
-    }
-  },
-  emits: ['selectPotential', 'unSelect'],
-  methods: {
+    },
     handleEvent(event) {
       const selectedElement = this.getElementAtEvent(event)
       if (selectedElement.length > 0) {
@@ -107,7 +129,14 @@ export default {
       }
     },
     getLabel(index) {
-      return '' + index
+      const data = this.atomData[index]
+      return [
+        `Cluster: ${data.cluster}`,
+        `Local_energy: ${data.local_energy}`,
+        `Medoid: ${data.medoid}`,
+        `Species: ${data.species}`,
+        `Surface: ${data.surface}`
+      ]
     },
     getElementAtEvent(event) {
       // this is mainly for allowing better testing, by wrapping the external
@@ -120,6 +149,9 @@ export default {
     return {
       scatter
     }
+  },
+  mounted() {
+    this.updateData()
   }
 }
 </script>

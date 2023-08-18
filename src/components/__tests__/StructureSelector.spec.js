@@ -8,7 +8,30 @@ import { Scatter, getElementAtEvent } from 'vue-chartjs'
 import StructureSelector from '../StructureSelector.vue'
 
 // Data imports
-import { potentialData } from './testData'
+
+const potentialData = [
+    {
+      x: -10,
+      y: 20,
+      color: "red",
+    },
+    {
+      x: 0,
+      y: 10,
+      color: "rgb(0,255,0,1)",
+    },
+    {
+      x: 10,
+      y: 5,
+      color: "rgb(0,0,255,1)",
+    },
+    {
+      x: 0.5,
+      y: 5.5,
+      color: "orange",
+    },
+  ]
+
 
 
 describe('StructureSelector', () => {

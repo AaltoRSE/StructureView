@@ -15,7 +15,8 @@ export default {
   },
   data() {
     return {
-      viewer: null
+      viewer: null,
+      test: Chem
     }
   },
   mounted() {
@@ -31,15 +32,13 @@ export default {
       this.viewer.clear()
       for (const element of this.moleculeData) {
         this.viewer.addSphere({
-          center: { x: element.x, y: element.y, z: element.z },
-          radius: element.radius,
-          color: element.color
+          center: { x: element.pos[0], y: element.pos[1], z: element.pos[2] },
+          opacity: element.surface ? 0.65 : 1,
+          color: Chem.elementColors.Jmol[element.species]
         })
       }
       this.viewer.zoomTo()
       this.viewer.render()
-      console.log(this.viewer)
-      console.log(this.viewer.getModelList())
     }
   },
   watch: {
