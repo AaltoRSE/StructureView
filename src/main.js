@@ -2,15 +2,6 @@
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-import {
-  isReady,
-  getAtomData,
-  getFullAtomData,
-  getPotentialData,
-  getParticles
-} from '@/backend/mockBackend'
-
-console.log(isReady())
 import App from './App.vue'
 import PrimeVue from 'primevue/config'
 
@@ -19,6 +10,10 @@ import 'primevue/resources/themes/lara-light-indigo/theme.css'
 // Primevue core css
 import 'primevue/resources/primevue.min.css'
 import 'primeflex/primeflex.css'
+
+import { loadData } from './backend/mockBackend'
+
+loadData()
 
 const pinia = createPinia()
 
