@@ -52,14 +52,18 @@ export default {
         : { width: 0, height: 0 }
     },
     leftPosition() {
-      return this.position.x + this.overlaySize.width > this.position.maxX
-        ? this.position.maxX - this.overlaySize.width
-        : this.position.x
+      if (this.position.x + this.overlaySize.width + 20 > this.position.maxX) {
+        return this.position.x - this.overlaySize.width - 30
+      } else {
+        return this.position.x + 10
+      }
     },
     topPosition() {
-      return this.position.y + this.overlaySize.height > this.position.maxY
-        ? this.position.maxY - this.overlaySize.height
-        : this.position.y
+      if (this.position.y + this.overlaySize.height + 20 > this.position.maxY) {
+        return this.position.y - this.overlaySize.height - 10
+      } else {
+        return this.position.y + 10
+      }
     },
     isText() {
       return typeof tooltipText === 'string'

@@ -1,6 +1,8 @@
 <template>
-  <div class="flex scatter-plot-container" ref="d3container">
-    <svg class="flex" ref="chart"></svg>
+  <div class="scatter-plot-container" ref="d3container">
+    <svg ref="chart">
+      <g ref="graphics"></g>
+    </svg>
     <Tooltip
       :showToolTip="showToolTip"
       :position="tooltipPosition"
@@ -49,6 +51,7 @@ export default {
   emits: ['selected', 'zooming'],
   data() {
     return {
+      graphics: null,
       svg: null,
       xScale: null,
       yScale: null,
@@ -58,8 +61,9 @@ export default {
       zoom: null,
       width: 0,
       height: 0,
-      zoomThrottle: 200,
-      lastZoomTime: 0
+      lastZoom: 1,
+      xAxis: null,
+      yAxis: null
     }
   },
   mounted() {
@@ -91,11 +95,10 @@ export default {
     initPlot() {
       this.width = this.d3container ? this.d3container.clientWidth : 600
       this.height = this.d3container ? this.d3container.clientHeight : 400
-      this.svg = d3
-        .select(this.$refs.chart)
-        .attr('width', this.width)
-        .attr('height', this.height)
-        .append('g')
+      this.svg = d3.select(this.$refs.chart)
+      this.graphics = d3.select(this.$refs.graphics)
+      this.svg.attr('width', this.width).attr('height', this.height)
+      this.graphics
         .on('mouseover', (event, d) => {
           d3.select(event.target).attr('r', 8)
           this.showTooltip(event.target.__data__.tooltip, event.clientX, event.clientY)
@@ -107,25 +110,30 @@ export default {
         .on('click', (event) => {
           this.$emit('selected', event.target.__data__.index)
         })
-      this.zoom = d3.zoom().scaleExtent([0.5, 5]).on('zoom', this.handleZoom)
 
+      this.zoom = d3
+        .zoom()
+        .scaleExtent([1, 8])
+        .translateExtent([
+          [0, 0],
+          [this.width, this.height]
+        ])
+        .on('zoom', this.handleZoom)
       this.svg.call(this.zoom)
+
       this.updatePlot()
       this.updateColors()
     },
     handleZoom(event) {
-      console.log(event)
-      const now = Date.now()
-      // throttle Zoom to not update multiple times for one mouse scroll
-      if (now - this.lastZoomTime >= this.zoomThrottle) {
-        this.lastZoomTime = now
-        const { transform } = event
-        const XRange = transform.rescaleX(this.xScale).domain()
-        const YRange = transform.rescaleY(this.yScale).domain()
-        const zoomIn = transform.k > 1
-        this.$emit('zooming', { XRange, YRange, zoomIn })
-        this.svg.attr('transform', transform)
-      }
+      const { transform } = event
+      const XRange = transform.rescaleX(this.xScale).domain()
+      const YRange = transform.rescaleY(this.yScale).domain()
+      const zoomIn = transform.k >= this.lastZoom
+      this.$emit('zooming', { XRange, YRange, zoomIn })
+      this.graphics.attr('transform', transform)
+      // remember the last zoom.
+      this.lastZoom = transform.k
+      //}
     },
     showTooltip(text, x, y) {
       if (this.d3container) {
@@ -148,7 +156,7 @@ export default {
       this.xScale = d3.scaleLinear().domain([this.minX, this.maxX]).range([0, this.width])
       this.yScale = d3.scaleLinear().domain([this.minY, this.maxY]).range([this.height, 0])
       d3.select(this.$refs.chart).attr('width', this.width).attr('height', this.height)
-      const circles = this.svg.selectAll('circle').data(this.coordinateData)
+      const circles = this.graphics.selectAll('circle').data(this.coordinateData)
       circles
         .enter()
         .append('circle')
@@ -159,8 +167,8 @@ export default {
       circles.exit().remove()
     },
     updateColors() {
-      if (!this.svg) return
-      const circles = this.svg.selectAll('circle').data(this.coordinateData)
+      if (!this.graphics) return
+      const circles = this.graphics.selectAll('circle').data(this.coordinateData)
       circles.attr('fill', (d, i) => this.colorData[i])
       circles.exit().remove()
     }

@@ -121,7 +121,7 @@ export default {
         event.XRange[1],
         event.YRange[0],
         event.YRange[1],
-        1000,
+        2000,
         event.zoomIn
       )
     }
@@ -139,7 +139,6 @@ export default {
     }
   },
   mounted() {
-    console.log(this.minmaxCoords)
     this.updateColors()
     this.potentialStore.updateSelection(
       this.minmaxCoords.minX,

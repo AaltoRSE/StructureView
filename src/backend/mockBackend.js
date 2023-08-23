@@ -8,10 +8,8 @@ const response = await fetch(
 )
 const xyzData = await response.text()
 particleData = parseXYZ(xyzData)
-console.log('Data Ready')
 
 export function isReady() {
-  console.log(particleData)
   return particleData != null
 }
 
@@ -75,7 +73,5 @@ export function getPotentialData() {
 }
 
 export function getParticles(particleIDs) {
-  console.log(particleIDs)
-  console.log(particleData)
   return particleData.filter((particle) => particleIDs.includes(particle.moleculeProperties.id))
 }

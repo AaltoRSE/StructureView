@@ -1,8 +1,6 @@
 // stores/counter.js
 import { defineStore } from 'pinia'
 import { getParticle, getFullAtomData, getParticles, isReady } from '@/backend/mockBackend.js'
-import VueWorker from 'vue-worker'
-import Worker from './worker.js' // Import the worker script
 
 async function waitForData() {
   // Create a promise that resolves when the asynchronous action is done
@@ -11,11 +9,9 @@ async function waitForData() {
     while (true) {
       if (isReady()) {
         // Resolve the promise with the result of the asynchronous action
-        console.log('Data is ready, proceeding')
         resolve(true)
         return
       } else {
-        console.log('Data not yet ready, waiting')
         await new Promise((waiting) => setTimeout(waiting, 200))
       }
     }
@@ -82,7 +78,6 @@ export const usePotentialStore = defineStore('potentials', {
      * @param {*} yLabel
      */
     selectLabeling(colorValueField) {
-      console.log(colorValueField)
       this.colorValueField = this.colorFieldOptions.find((field) => field.id === colorValueField.id)
       this.updateColors()
     },
@@ -90,10 +85,16 @@ export const usePotentialStore = defineStore('potentials', {
      *
      */
     updateSelection(minX, maxX, minY, maxY, count, zoomIn) {
-      console.log('Updating selection')
       const matchingIndices = this.coordinateData
-        .filter((coord) => coord.x < maxX && coord.x > minX && coord.y < maxY && coord.y > minY)
         .map((x, index) => index)
+        .filter(
+          (index) =>
+            this.coordinateData[index].x < maxX &&
+            this.coordinateData[index].x > minX &&
+            this.coordinateData[index].y < maxY &&
+            this.coordinateData[index].y > minY
+        )
+
       // add everything that is already in, except if we are extending the search space...
       const existingMatches = zoomIn
         ? this.selectedIndices.filter((x) => matchingIndices.includes(x))
@@ -143,7 +144,6 @@ export const usePotentialStore = defineStore('potentials', {
     },
     updateAtomData() {
       this.updating = true
-      console.log(this)
       waitForData().then(() => {
         getFullAtomData()
           .then((data) => {
@@ -159,7 +159,6 @@ export const usePotentialStore = defineStore('potentials', {
       })
     },
     init() {
-      console.log('Initializing Potential Store')
       this.updateAtomData()
     },
     async ready() {
@@ -171,7 +170,6 @@ export const usePotentialStore = defineStore('potentials', {
             await new Promise((waiting) => setTimeout(waiting, 200))
           } else {
             // Resolve the promise with the result of the asynchronous action
-            console.log('Data is ready, proceeding')
             resolve(true)
             break
           }

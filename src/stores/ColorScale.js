@@ -102,7 +102,6 @@ function colorStops(count, colors) {
     const tempColors = colors.map((color) => {
       return { r: color.r, g: color.g, b: color.b }
     })
-    console.log(colors)
     for (let i = 0; i < count; ++i) {
       const largerIndex = colors.findIndex((x) => x.pos > i / count)
       if (largerIndex == -1) {

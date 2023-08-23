@@ -68,7 +68,6 @@ export default {
   components: { StructureSelector, DropDown, ProgressSpinner, ColorScale },
   computed: {
     colorScaleOptions() {
-      console.log(this.colorOptions)
       return this.colorOptions.map((option) => option.name)
     },
     colorValueOptions() {
@@ -115,7 +114,6 @@ export default {
       this.updateColors()
     }
   },
-  emits: ['selectPotential', 'unSelect'],
   methods: {
     updateColors() {
       this.atomColors = this.atomColorValues.map((atomColor) => {
@@ -127,7 +125,6 @@ export default {
       })
     },
     selectPotential(atomPosition) {
-      console.log(this.atomData[atomPosition].moleculeID)
       this.potentialStore.selectPotential(this.atomData[atomPosition].moleculeID)
     }
   },

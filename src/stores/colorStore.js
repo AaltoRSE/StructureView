@@ -54,10 +54,7 @@ export const useColorStore = defineStore('colors', {
       const scale = colorScales.find((scale) => scale.name === scaleID)
       const colorScale = new ColorScale()
       colorScale.init(values, scale.colors)
-      console.log(colorScale.getColors())
       this.colorScale = colorScale
-      console.log(this.colorScale)
-      console.log(this)
     }
   }
 })
