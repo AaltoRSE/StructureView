@@ -1,5 +1,4 @@
 <script setup>
-import ProgressSpinner from 'primevue/progressspinner'
 import StructureSelection from './StructureSelection.vue'
 import Mol from './Mol.vue'
 import { ref } from 'vue'
@@ -20,7 +19,7 @@ function processData(data) {
   </div>-->
 
   <div class="grid">
-    <div class="col w-6">
+    <div class="col w-6 h-full">
       <StructureSelection
         @selectPotential="
           (event) => {
@@ -31,7 +30,7 @@ function processData(data) {
         @unSelect="selectedPotential = null"
       ></StructureSelection>
     </div>
-    <div class="col w-6">
+    <div class="col w-6 h-full">
       <Mol :selectedPotential="selectedPotential"></Mol>
     </div>
   </div>

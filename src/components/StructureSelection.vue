@@ -1,33 +1,41 @@
 <template>
-  <StructureSelector
-    v-if="colorScale"
-    :atomData="atomData"
-    :coordinateData="coordinateData"
-    :colorData="atomColors"
-    @selectPotential="selectPotential"
-    @unSelect="potentialStore.unselectPotential()"
-  ></StructureSelector>
-  <div v-else class="flex justify-content-center">
-    <ProgressSpinner></ProgressSpinner>
-  </div>
-  <div class="w-full flex justify-content-between">
-    <div>
-      <label for="ColorScaleSelection"> Color Scale: </label>
-      <DropDown
-        id="ColorScaleSelection"
-        v-model="selectedScale"
-        :options="colorScaleOptions"
-        placeholder="Select a color Scale"
-      ></DropDown>
-    </div>
-    <div>
-      <label for="ColorValue"> Color Value based on </label>
-      <DropDown
-        id="ColorValue"
-        v-model="colorField"
-        :options="colorFieldOptions"
-        optionLabel="label"
-      ></DropDown>
+  <div class="grid h-full">
+    <div class="col w-6 h-full">
+      <div class="row selheader">
+        <div class="flex align-content-between justify-content-between">
+          <div>
+            <label for="ColorScaleSelection"> Color Scale: </label>
+            <DropDown
+              id="ColorScaleSelection"
+              v-model="selectedScale"
+              :options="colorScaleOptions"
+              placeholder="Select a color Scale"
+            ></DropDown>
+          </div>
+          <div>
+            <label for="ColorValue"> Color Value based on </label>
+            <DropDown
+              id="ColorValue"
+              v-model="colorField"
+              :options="colorFieldOptions"
+              optionLabel="label"
+            ></DropDown>
+          </div>
+        </div>
+      </div>
+      <div class="row selselector" v-if="colorScale">
+        <div class="h-full">
+          <ColorScale :title="colorField.label"></ColorScale>
+          <StructureSelector
+            :colorScale="colorScale"
+            @selectPotential="selectPotential"
+            @unSelect="potentialStore.unselectPotential()"
+          ></StructureSelector>
+        </div>
+      </div>
+      <div v-else class="row">
+        <ProgressSpinner></ProgressSpinner>
+      </div>
     </div>
   </div>
 </template>
@@ -40,6 +48,7 @@ import StructureSelector from './StructureSelector.vue'
 
 import DropDown from 'primevue/dropdown'
 import ProgressSpinner from 'primevue/progressspinner'
+import ColorScale from './ColorScale.vue'
 
 export default {
   props: {
@@ -56,7 +65,7 @@ export default {
       atomColors: []
     }
   },
-  components: { StructureSelector, DropDown, ProgressSpinner },
+  components: { StructureSelector, DropDown, ProgressSpinner, ColorScale },
   computed: {
     colorScaleOptions() {
       console.log(this.colorOptions)
@@ -129,3 +138,9 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.selselector {
+  height: 80%;
+}
+</style>

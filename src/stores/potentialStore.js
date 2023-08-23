@@ -1,6 +1,8 @@
 // stores/counter.js
 import { defineStore } from 'pinia'
 import { getParticle, getFullAtomData, getParticles, isReady } from '@/backend/mockBackend.js'
+import VueWorker from 'vue-worker'
+import Worker from './worker.js' // Import the worker script
 
 async function waitForData() {
   // Create a promise that resolves when the asynchronous action is done
@@ -48,6 +50,7 @@ export const usePotentialStore = defineStore('potentials', {
       coordinateData: [],
       atomColorValues: [],
       particleData: [],
+      selectedIndices: [],
       updating: false
     }
   },
@@ -82,6 +85,34 @@ export const usePotentialStore = defineStore('potentials', {
       console.log(colorValueField)
       this.colorValueField = this.colorFieldOptions.find((field) => field.id === colorValueField.id)
       this.updateColors()
+    },
+    /**
+     *
+     */
+    updateSelection(minX, maxX, minY, maxY, count, zoomIn) {
+      console.log('Updating selection')
+      const matchingIndices = this.coordinateData
+        .filter((coord) => coord.x < maxX && coord.x > minX && coord.y < maxY && coord.y > minY)
+        .map((x, index) => index)
+      // add everything that is already in, except if we are extending the search space...
+      const existingMatches = zoomIn
+        ? this.selectedIndices.filter((x) => matchingIndices.includes(x))
+        : []
+      // now, remove those elements from the matchingIndices
+      const possibleIndices = matchingIndices.filter((x) => !existingMatches.includes(x))
+      // Shuffle the indices, for a random draw
+      for (let i = possibleIndices.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[possibleIndices[i], possibleIndices[j]] = [possibleIndices[j], possibleIndices[i]]
+      }
+      // and fill up to count
+      if (existingMatches.length < count) {
+        this.selectedIndices = existingMatches.concat(
+          possibleIndices.slice(0, count - existingMatches.length)
+        )
+      } else {
+        this.selectedIndices = existingMatches.slice(0, count)
+      }
     },
     /**
      * Select the current displayed potential

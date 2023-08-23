@@ -1,5 +1,5 @@
 <template>
-  <div ref="viewerContainer" style="width: 100%; height: 100%; position: relative"></div>
+  <div ref="viewerContainer" class="flex h-full w-full" style="position: relative"></div>
 </template>
 
 <script>

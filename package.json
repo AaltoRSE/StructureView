@@ -14,12 +14,15 @@
     "3dmol": "^2.0.3",
     "chartjs-plugin-gradient": "^0.6.1",
     "chartjs-plugin-zoom": "^2.0.1",
+    "d3": "^7.8.5",
     "pinia": "^2.1.6",
     "primeflex": "^3.3.1",
     "primevue": "^3.29.2",
+    "regl-scatterplot": "^1.8.3",
     "uuid": "^9.0.0",
     "vue": "^3.3.4",
-    "vue-chartjs": "^5.2.0"
+    "vue-chartjs": "^5.2.0",
+    "vue-worker": "^1.2.1"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",

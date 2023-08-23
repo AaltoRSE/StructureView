@@ -1,132 +1,79 @@
 <template>
-  <Scatter
-    v-if="chartData"
-    ref="scatter"
-    :data="chartData"
-    :options="chartOptions"
-    @click="handleEvent"
-  ></Scatter>
-  <color-scale></color-scale>
+  <div class="h-full">
+    <D3Scatter
+      :minX="minmaxCoords.minX"
+      :maxX="minmaxCoords.maxX"
+      :minY="minmaxCoords.minY"
+      :maxY="minmaxCoords.maxY"
+      @selected="selectPotential"
+      @zooming="updateSelection"
+      :colorData="d3ColorData"
+      :coordinateData="d3CoordinateData"
+    ></D3Scatter>
+  </div>
 </template>
 
 <script>
-import { Scatter, getElementAtEvent } from 'vue-chartjs'
-import ColorScale from './ColorScale.vue'
-import zoomPlugin from 'chartjs-plugin-zoom'
-
-import { Chart as ChartJS, Title, Tooltip, Legend, LinearScale, PointElement } from 'chart.js'
-
-import { ref } from 'vue'
-
-ChartJS.register(Title, Tooltip, Legend, LinearScale, PointElement, zoomPlugin)
+import D3Scatter from './D3Scatter.vue'
+import { storeToRefs } from 'pinia'
+import { usePotentialStore } from '../stores/potentialStore'
 
 export default {
   props: {
-    atomData: {
-      type: Array,
-      required: true
-    },
-    colorData: {
-      type: Array,
-      required: true
-    },
-    coordinateData: {
-      type: Array,
-      required: true
+    colorScale: {
+      type: Object
     }
   },
   data() {
     return {
       chartData: null,
-      chartOptions: null
+      chartOptions: null,
+      atomColors: []
     }
   },
-  components: { Scatter, ColorScale },
+  components: { D3Scatter },
 
   computed: {
-    chart() {
-      return this.scatter.chart
-    }
-  },
-  watch: {
-    coordinateData(newValue) {
-      this.updateData()
+    d3CoordinateData() {
+      return this.selectedIndices
+        .map((index) => this.coordinateData[index])
+        .map((coord, index) => {
+          return { x: coord.x, y: coord.y, tooltip: this.getLabel(index), index: index }
+        })
     },
-    colorData(newValue) {
-      this.scatter.chart.update()
+    d3ColorData() {
+      return this.selectedIndices.map((index) => this.atomColors[index])
+    },
+    minmaxCoords() {
+      if (this.coordinateData.length > 0) {
+        return this.findMinAndMax(this.coordinateData)
+      } else {
+        return { minX: -1, maxX: 1, minY: -1, maxY: 1 }
+      }
     }
   },
   emits: ['selectPotential', 'unSelect'],
-  methods: {
-    updateData() {
-      this.chartOptions = {
-        responsive: true,
-        pointBackgroundColor: (context) => {
-          return this.colorData[context.dataIndex]
-        },
-        scales: {
-          x: {
-            grid: {
-              display: false
-            },
-            ticks: {
-              display: false
-            }
-          },
-          y: {
-            grid: {
-              display: false
-            },
-            ticks: {
-              display: false
-            }
-          }
-        },
-        plugins: {
-          zoom: {
-            zoom: {
-              wheel: {
-                enabled: true
-              },
-              pinch: {
-                enabled: true
-              },
-              mode: 'xy'
-            }
-          },
-          legend: {
-            display: false,
-            position: 'right'
-          },
-          tooltip: {
-            callbacks: {
-              label: (context) => {
-                return this.getLabel(context.dataIndex)
-              }
-            },
-            mode: 'index',
-            displayColors: false
-          },
-          gradient: {}
-        }
+  watch: {
+    atomColorValues(newValues) {
+      if (this.colorScale != null) {
+        this.colorScale.update(newValues)
       }
-      this.chartData = {
-        datasets: [
-          {
-            label: 'Current Dataset',
-            data: this.coordinateData,
-            backgroundColor: 'rgb(255, 99, 132)'
-          }
-        ]
-      }
+      this.updateColors()
     },
-    handleEvent(event) {
-      const selectedElement = this.getElementAtEvent(event)
-      if (selectedElement.length > 0) {
-        this.$emit('selectPotential', selectedElement[0].index)
-      } else {
-        this.$emit('unSelect')
-      }
+    minmaxCoords(newValue) {
+      this.potentialStore.updateSelection(
+        newValue.minX,
+        newValue.maxX,
+        newValue.minY,
+        newValue.maxY,
+        1000,
+        false
+      )
+    }
+  },
+  methods: {
+    selectPotential(event) {
+      this.$emit('selectPotential', event)
     },
     getLabel(index) {
       const data = this.atomData[index]
@@ -138,20 +85,70 @@ export default {
         `Surface: ${data.surface}`
       ]
     },
-    getElementAtEvent(event) {
-      // this is mainly for allowing better testing, by wrapping the external
-      // dependency and thus being able to mock the call properly
-      return getElementAtEvent(this.chart, event)
+    updateColors() {
+      this.atomColors = this.atomColorValues.map((atomColor) => {
+        const color = this.colorScale
+          ? this.colorScale.getColorForValue(atomColor)
+          : { r: 0, g: 0, b: 255 }
+
+        return `rgb(${color.r},${color.g},${color.b})`
+      })
+    },
+    findMinAndMax(coords) {
+      var minX = coords[0].x
+      var minY = coords[0].y
+      var maxX = coords[0].x
+      var maxY = coords[0].y
+      coords.forEach((coord) => {
+        if (coord.x > maxX) {
+          maxX = coord.x
+        }
+        if (coord.x < minX) {
+          minX = coord.x
+        }
+        if (coord.y > maxY) {
+          maxY = coord.y
+        }
+        if (coord.y < minY) {
+          minY = coord.y
+        }
+      })
+      return { minX, maxX, minY, maxY }
+    },
+    updateSelection(event) {
+      this.potentialStore.updateSelection(
+        event.XRange[0],
+        event.XRange[1],
+        event.YRange[0],
+        event.YRange[1],
+        1000,
+        event.zoomIn
+      )
     }
   },
   setup() {
-    const scatter = ref(null)
+    const potentialStore = usePotentialStore()
+    const { atomData, coordinateData, atomColorValues, selectedIndices } =
+      storeToRefs(potentialStore)
     return {
-      scatter
+      atomData,
+      coordinateData,
+      atomColorValues,
+      selectedIndices,
+      potentialStore
     }
   },
   mounted() {
-    this.updateData()
+    console.log(this.minmaxCoords)
+    this.updateColors()
+    this.potentialStore.updateSelection(
+      this.minmaxCoords.minX,
+      this.minmaxCoords.maxX,
+      this.minmaxCoords.minY,
+      this.minmaxCoords.maxY,
+      1000,
+      false
+    )
   }
 }
 </script>
