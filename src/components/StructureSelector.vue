@@ -28,7 +28,8 @@ export default {
     return {
       chartData: null,
       chartOptions: null,
-      atomColors: []
+      atomColors: [],
+      atomsToSelect: 5000
     }
   },
   components: { D3Scatter },
@@ -66,7 +67,7 @@ export default {
         newValue.maxX,
         newValue.minY,
         newValue.maxY,
-        1000,
+        this.atomsToSelect,
         false
       )
     }
@@ -121,7 +122,7 @@ export default {
         event.XRange[1],
         event.YRange[0],
         event.YRange[1],
-        2000,
+        this.atomsToSelect,
         event.zoomIn
       )
     }
@@ -145,7 +146,7 @@ export default {
       this.minmaxCoords.maxX,
       this.minmaxCoords.minY,
       this.minmaxCoords.maxY,
-      1000,
+      this.atomsToSelect,
       false
     )
   }
