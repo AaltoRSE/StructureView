@@ -1,79 +1,143 @@
 <template>
-  <StructureSelector
-    :potentialData="currentData"
-    @selectPotential="(event) => $emit('selectPotential', event)"
-    @unSelect="$emit('unSelect')"
-  ></StructureSelector>
-  <button @click="selected = !selected">switch dataset</button>
+  <div class="grid h-full">
+    <div class="col w-6 h-full">
+      <div class="row selheader">
+        <div class="flex align-content-between justify-content-between">
+          <div>
+            <label for="ColorScaleSelection"> Color Scale: </label>
+            <DropDown
+              id="ColorScaleSelection"
+              v-model="selectedScale"
+              :options="colorScaleOptions"
+              placeholder="Select a color Scale"
+            ></DropDown>
+          </div>
+          <div>
+            <label for="ColorValue"> Color Value based on </label>
+            <DropDown
+              id="ColorValue"
+              v-model="colorField"
+              :options="colorFieldOptions"
+              optionLabel="label"
+            ></DropDown>
+          </div>
+        </div>
+      </div>
+      <div class="row selselector" v-if="colorScale">
+        <div class="h-full">
+          <ColorScale :title="colorField.label"></ColorScale>
+          <StructureSelector
+            :colorScale="colorScale"
+            @selectPotential="selectPotential"
+            @unSelect="potentialStore.unselectPotential()"
+          ></StructureSelector>
+        </div>
+      </div>
+      <div v-else class="row">
+        <ProgressSpinner></ProgressSpinner>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import StructureSelector from "./StructureSelector.vue";
+import { storeToRefs } from 'pinia'
+import { usePotentialStore } from '../stores/potentialStore'
+import { useColorStore } from '../stores/colorStore'
+import StructureSelector from './StructureSelector.vue'
+
+import DropDown from 'primevue/dropdown'
+import ProgressSpinner from 'primevue/progressspinner'
+import ColorScale from './ColorScale.vue'
 
 export default {
   props: {
     potentialID: {
       type: String,
-      default: "",
-    },
+      default: ''
+    }
   },
   data() {
     return {
-      selected: false,
-      data1: [
-        {
-          x: -10,
-          y: 0,
-          color: "red",
-        },
-        {
-          x: 0,
-          y: 10,
-          color: "rgb(0,255,0,1)",
-        },
-        {
-          x: 10,
-          y: 5,
-          color: "rgb(0,0,255,1)",
-        },
-        {
-          x: 0.5,
-          y: 5.5,
-          color: "orange",
-        },
-      ],
-
-      data2: [
-        {
-          x: 10,
-          y: 0,
-          color: "orange",
-        },
-        {
-          x: 0,
-          y: -10,
-          color: "blue",
-        },
-        {
-          x: -10,
-          y: 5,
-          color: "green",
-        },
-        {
-          x: -0.5,
-          y: 5.5,
-          color: "yellow",
-        },
-      ],
-    };
+      loading: true,
+      selectedField: null,
+      selectedScale: null,
+      atomColors: []
+    }
   },
-  components: { StructureSelector },
+  components: { StructureSelector, DropDown, ProgressSpinner, ColorScale },
   computed: {
-    currentData() {
-      return this.selected ? this.data1 : this.data2;
+    colorScaleOptions() {
+      return this.colorOptions.map((option) => option.name)
     },
+    colorValueOptions() {
+      return this.colorFieldOptions.map((option) => option.id)
+    },
+    colorField: {
+      set(newValue) {
+        this.potentialStore.selectLabeling(newValue)
+      },
+      get() {
+        return this.colorValueField
+      }
+    }
   },
-  emits: ["selectPotential", "unSelect"],
-  methods: {},
-};
+  setup() {
+    const potentialStore = usePotentialStore()
+    const colorStore = useColorStore()
+    const { atomData, coordinateData, atomColorValues, colorFieldOptions, colorValueField } =
+      storeToRefs(potentialStore)
+    const { colorScale, colorOptions } = storeToRefs(colorStore)
+    return {
+      potentialStore,
+      atomData,
+      coordinateData,
+      colorFieldOptions,
+      colorValueField,
+      atomColorValues,
+      colorScale,
+      colorOptions,
+      colorStore
+    }
+  },
+  watch: {
+    selectedScale(newValue) {
+      this.colorStore.setScale(newValue, this.atomColorValues)
+    },
+    colorScale() {
+      this.updateColors()
+    },
+    atomColorValues(newValues) {
+      if (this.colorScale != null) {
+        this.colorScale.update(newValues)
+      }
+      this.updateColors()
+    }
+  },
+  methods: {
+    updateColors() {
+      this.atomColors = this.atomColorValues.map((atomColor) => {
+        const color = this.colorScale
+          ? this.colorScale.getColorForValue(atomColor)
+          : { r: 0, g: 0, b: 255 }
+
+        return `rgb(${color.r},${color.g},${color.b})`
+      })
+    },
+    selectPotential(atomPosition) {
+      this.potentialStore.selectPotential(this.atomData[atomPosition].moleculeID)
+    }
+  },
+  mounted() {
+    this.potentialStore.ready().then(() => {
+      this.selectedScale = this.colorOptions[0].name
+    })
+  }
+}
 </script>
+
+<style scoped>
+.selselector {
+  height: 80%;
+}
+</style>
