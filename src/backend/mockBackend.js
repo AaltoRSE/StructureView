@@ -1,14 +1,14 @@
 import { parseXYZ } from './xyzparser'
 
 var particleData = null
-
-const response = await fetch(
-  'https://raw.githubusercontent.com/mcaroba/turbogap/master/tutorials/PtAu_NPs_MDS/db2.xyz'
-  //'https://api.github.com/repos/mcaroba/turbogap/contents/tutorials/PtAu_NPs_MDS/db2.xyz'
-)
-const xyzData = await response.text()
-particleData = parseXYZ(xyzData)
-
+export async function loadData() {
+  const response = await fetch(
+    'https://raw.githubusercontent.com/mcaroba/turbogap/master/tutorials/PtAu_NPs_MDS/db2.xyz'
+    //'https://api.github.com/repos/mcaroba/turbogap/contents/tutorials/PtAu_NPs_MDS/db2.xyz'
+  )
+  const xyzData = await response.text()
+  particleData = parseXYZ(xyzData)
+}
 export function isReady() {
   return particleData != null
 }
