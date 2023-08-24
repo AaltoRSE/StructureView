@@ -2,7 +2,6 @@
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
-console.log(isReady())
 import App from './App.vue'
 import PrimeVue from 'primevue/config'
 
