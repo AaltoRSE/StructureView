@@ -61,6 +61,10 @@ export default {
       }
       this.updateColors()
     },
+    colorScale(newValue) {
+      console.log('New ColorScale')
+      this.updateColors()
+    },
     minmaxCoords(newValue) {
       this.potentialStore.updateSelection(
         newValue.minX,

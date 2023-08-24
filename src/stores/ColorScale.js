@@ -12,10 +12,10 @@ export class ColorScale {
       this.colors = colorStops(unique.length, colors)
       this.colorStops = this.colors
       this.continous = false
-    } else if (unique.length <= colors.length) {
-      this.colorValues = unique.sort((a, b) => a - b)
-      this.colors = colors.slice(0, this.colorValues.length)
+    } else if (unique.length <= Math.min(50, values.length / 500)) {
+      this.colors = colorStops(unique.length, colors)
       this.colorStops = this.colors
+      this.colorValues = unique.sort((a, b) => a - b)
       this.continous = false
     } else {
       this.colors = colors.map((color) => {

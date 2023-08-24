@@ -7,5 +7,5 @@ potentialStore.init()
 </script>
 
 <template>
-  <PotentialViewer class="w-screen h-screen"></PotentialViewer>
+  <PotentialViewer class="w-full h-screen"></PotentialViewer>
 </template>
