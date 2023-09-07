@@ -47,6 +47,7 @@ export const usePotentialStore = defineStore('potentials', {
       atomColorValues: [],
       particleData: [],
       selectedIndices: [],
+      selectedData: [],
       updating: false
     }
   },
@@ -114,6 +115,7 @@ export const usePotentialStore = defineStore('potentials', {
       } else {
         this.selectedIndices = existingMatches.slice(0, count)
       }
+      this.selectedData = this.selectedIndices.map((x) => this.atomData[x])
     },
     /**
      * Select the current displayed potential

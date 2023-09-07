@@ -81,7 +81,7 @@ export default {
       this.$emit('selectPotential', event)
     },
     getLabel(index) {
-      const data = this.atomData[index]
+      const data = this.selectedData[index]
       return [
         `Cluster: ${data.cluster}`,
         `Local_energy: ${data.local_energy}`,
@@ -133,10 +133,10 @@ export default {
   },
   setup() {
     const potentialStore = usePotentialStore()
-    const { atomData, coordinateData, atomColorValues, selectedIndices } =
+    const { selectedData, coordinateData, atomColorValues, selectedIndices } =
       storeToRefs(potentialStore)
     return {
-      atomData,
+      selectedData,
       coordinateData,
       atomColorValues,
       selectedIndices,
